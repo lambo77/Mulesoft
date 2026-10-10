@@ -1,0 +1,4 @@
+{
+  "minMuleVersion": "4.9.0",
+  "_comment": "UNVERIFIED: field set per plan 2.5. Confirm against the Mule plugin descriptor docs in WP7."
+}
