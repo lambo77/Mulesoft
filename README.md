@@ -1,5 +1,17 @@
 # Azure Key Vault Configuration Property Provider (Mule 4)
 
+## WP4 status (TTL cache)
+
+Written: `vault/SecretCache`. Thread-safe `ConcurrentHashMap` of value and fetch time, TTL from `ttlMinutes`. Shared by the placeholder and operation paths (WP5/WP5b).
+- Fresh value (age under one TTL): served with no vault call. This is how a fresh value survives an outage.
+- Expired or missing: fetched through the source. On failure the failure surfaces, and an expired value is never served (D2).
+- Failures are not cached.
+- Concurrent misses for one name share one fetch (per-key lock, double-checked).
+
+Verified: 9 unit tests pass, including single-flight with 20 concurrent threads (one vault call) and the D2 outage cases. Run with the reflective runner.
+
+Not done in WP4: `Retry-After` honouring and cache eviction of unused names. Neither is required by the plan.
+
 ## WP3 status (vault access layer)
 
 Written (`com.kepak.mule.keyvault.vault`):
