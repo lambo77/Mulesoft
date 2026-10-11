@@ -1,5 +1,22 @@
 # Azure Key Vault Configuration Property Provider (Mule 4)
 
+## WP3 status (vault access layer)
+
+Written (`com.kepak.mule.keyvault.vault`):
+- `SecretSource`: interface, `String getSecretValue(String)`. Keeps Azure types out of the unit tests.
+- `AzureSecretSource`: builds a `SecretClient` with `ClientSecretCredential` from the config. Maps SDK failures to the exception hierarchy. `mapStatus` maps HTTP status: 401/403 auth, 404 not found, 408/429/5xx unavailable (retryable), other 4xx plain `VaultException`.
+- `RetryingSecretSource`: retries only `VaultUnavailableException`. Exponential backoff from 500 ms, 3 retries (4 attempts), injectable `Sleeper`.
+- Exceptions: `VaultException` (base), `SecretNotFoundException`, `VaultAuthenticationException`, `VaultUnavailableException`. Messages name the secret, never its value.
+
+Verified:
+- 22 unit tests pass (10 validation, 7 retry, 5 status mapping), run through the reflective runner.
+- `AzureSecretSource` compiles against `azure-security-keyvault-secrets` 4.11.1, `azure-identity` 1.18.4 and `azure-core`.
+
+Not done in WP3:
+- Not run against a live Key Vault. That needs the dev vault and an App Registration (setup guide Section 2).
+- `Retry-After` headers are not honoured. Backoff is fixed.
+- The start-up probe read is still to be wired, in the provider factory (WP5).
+
 ## WP2 status (extension, config, validation)
 
 Written:
