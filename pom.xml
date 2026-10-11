@@ -93,6 +93,14 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Logging API. Provided by the Mule runtime. Version matches the classpath used for local compile. -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>

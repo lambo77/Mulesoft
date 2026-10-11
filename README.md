@@ -1,5 +1,23 @@
 # Azure Key Vault Configuration Property Provider (Mule 4)
 
+## WP6 status (error handling, logging, guardrails)
+
+Written:
+- `vault/VaultLog`: the one place log lines are written (SLF4J logger `com.kepak.mule.keyvault`). Has a sink that tests can replace.
+- Log lines (secret names and vault URLs only, never values):
+  - WARN on each retry: secret name, attempt number, wait.
+  - INFO on probe success: vault URL.
+  - ERROR on start-up failure: the exception message.
+  - ERROR on operation failure: secret name and the exception message. Success is not logged.
+- Error messages already name the parameter, vault or secret, and never the value (WP2 and WP3).
+- `SLF4J` added as a provided dependency at 1.7.25, the version already on the resolved classpath.
+
+Verified: `SecretGuardrailTest` (8 tests) runs each error path, the retry path, the start-up path and the success path, then checks that neither the vault value nor the client secret appears in any log line or exception message. All seven test classes pass: 57 tests.
+
+Residual risk: the SDK's cause exception is kept on the chain (`getCause()`), and Mule's logging of a stack trace may print it. We can't control what the SDK puts in its own messages. The test uses a deliberately leaky cause to check that our own messages stay clean.
+
+Open (unchanged): the named Mule error type (D2), and an output-sensitivity annotation. Both need the SDK's `ErrorTypeDefinition` and sensitive-output annotations, which are not in the 1.9.0 jar.
+
 ## WP5b status (azure-kv:get-secret operation)
 
 Written:

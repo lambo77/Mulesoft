@@ -2,6 +2,8 @@ package com.kepak.mule.keyvault;
 
 import com.kepak.mule.keyvault.vault.SecretCache;
 import com.kepak.mule.keyvault.vault.SecretSource;
+import com.kepak.mule.keyvault.vault.VaultException;
+import com.kepak.mule.keyvault.vault.VaultLog;
 import org.mule.runtime.properties.api.ConfigurationProperty;
 import org.mule.runtime.properties.api.ConfigurationPropertiesProvider;
 
@@ -43,8 +45,14 @@ public final class AzureKeyVaultPropertiesProvider implements ConfigurationPrope
     ConfigValidation.validate(config);
 
     SecretCache cache = SharedCaches.forConfig(config, sourceFactory);
-    // Probe read: validates credentials and the probe secret. A failure propagates and fails start-up.
-    cache.get(config.getProbeSecretName());
+    // Probe read: validates credentials and the probe secret. A failure fails start-up.
+    try {
+      cache.get(config.getProbeSecretName());
+    } catch (VaultException e) {
+      VaultLog.error("Start-up failed: " + e.getMessage());
+      throw e;
+    }
+    VaultLog.info("Key Vault probe read succeeded for " + config.getVaultUrl());
     return new AzureKeyVaultPropertiesProvider(cache, config.getVaultUrl());
   }
 

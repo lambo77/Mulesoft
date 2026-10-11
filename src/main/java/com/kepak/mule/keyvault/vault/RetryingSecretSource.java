@@ -43,6 +43,8 @@ public class RetryingSecretSource implements SecretSource {
         if (retry >= maxRetries) {
           throw e;
         }
+        VaultLog.warn("Key Vault unavailable reading secret '" + secretName + "' (retry "
+            + (retry + 1) + " of " + maxRetries + ") in " + backoff + " ms");
         pause(backoff, secretName, e);
         backoff *= 2;
       }
