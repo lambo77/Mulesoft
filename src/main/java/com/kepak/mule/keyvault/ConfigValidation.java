@@ -48,6 +48,11 @@ public final class ConfigValidation {
     }
   }
 
+  /** True when the value is a valid Key Vault secret name. */
+  public static boolean isValidSecretName(String secretName) {
+    return secretName != null && SECRET_NAME.matcher(secretName).matches();
+  }
+
   /** Key Vault secret names: letters, digits and hyphens, 1 to 127 characters. */
   public static void validateSecretName(String parameter, String secretName) {
     requireNonBlank(parameter, secretName);

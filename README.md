@@ -1,5 +1,23 @@
 # Azure Key Vault Configuration Property Provider (Mule 4)
 
+## WP5 status (SPI factory and placeholder provider)
+
+Written:
+- `AzureKeyVaultPropertiesProviderFactory`: implements `ConfigurationPropertiesProviderFactory`. `getSupportedComponentIdentifier()` returns namespace `azure-kv`, name `config`. `createProvider(ComponentAst, UnaryOperator<String>, ResourceProvider)` builds the provider.
+- `AzureKeyVaultPropertiesProvider`: reads each parameter through the resolver, validates the config (WP2), builds `Retrying(AzureSecretSource)` in a `SecretCache`, and reads the probe secret once (D3). `provide(key)` returns empty for keys that are not valid secret names, and otherwise reads through the cache. `getDescription()` names the vault and not the secret.
+- Services file now lists the factory class.
+
+Verified:
+- `javac --release 17` compiles the factory and provider against the 4.9 `ConfigurationPropertiesProviderFactory`, `ConfigurationPropertiesProvider`, `ConfigurationProperty` and `ComponentIdentifier` signatures.
+- 43 unit tests pass across five classes (validation, provider/factory, retry, status mapping, cache).
+
+Open gates (must be confirmed in WP7, not assumed):
+- **Routing.** The design assumes the runtime only asks this provider for `azure-kv::` placeholders. If it asks every provider for every key, then a valid-looking name that belongs to another provider raises `SecretNotFoundException` and breaks start-up. Confirm before use.
+- **Key format.** The design assumes `provide()` receives the name without the `azure-kv::` prefix. Unverified.
+- Not run against a live vault yet.
+
+Not done in WP5: the operation (WP5b).
+
 ## WP4 status (TTL cache)
 
 Written: `vault/SecretCache`. Thread-safe `ConcurrentHashMap` of value and fetch time, TTL from `ttlMinutes`. Shared by the placeholder and operation paths (WP5/WP5b).
