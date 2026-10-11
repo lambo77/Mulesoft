@@ -56,6 +56,11 @@ class AzureKeyVaultPropertiesProviderTest {
     return p;
   }
 
+  @org.junit.jupiter.api.BeforeEach
+  void resetSharedCaches() {
+    SharedCaches.clear();
+  }
+
   private static AzureKeyVaultPropertiesProvider create(Map<String, String> p, FakeVault vault) {
     return AzureKeyVaultPropertiesProvider.create(p::get, config -> vault);
   }

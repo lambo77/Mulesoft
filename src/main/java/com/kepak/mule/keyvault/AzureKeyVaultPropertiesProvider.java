@@ -5,7 +5,6 @@ import com.kepak.mule.keyvault.vault.SecretSource;
 import org.mule.runtime.properties.api.ConfigurationProperty;
 import org.mule.runtime.properties.api.ConfigurationPropertiesProvider;
 
-import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -43,7 +42,7 @@ public final class AzureKeyVaultPropertiesProvider implements ConfigurationPrope
         parseTtl(parameterResolver.apply("ttlMinutes")));
     ConfigValidation.validate(config);
 
-    SecretCache cache = new SecretCache(sourceFactory.apply(config), Duration.ofMinutes(config.getTtlMinutes()));
+    SecretCache cache = SharedCaches.forConfig(config, sourceFactory);
     // Probe read: validates credentials and the probe secret. A failure propagates and fails start-up.
     cache.get(config.getProbeSecretName());
     return new AzureKeyVaultPropertiesProvider(cache, config.getVaultUrl());

@@ -1,5 +1,23 @@
 # Azure Key Vault Configuration Property Provider (Mule 4)
 
+## WP5b status (azure-kv:get-secret operation)
+
+Written:
+- `AzureKeyVaultOperations.getSecret(@Config AzureKeyVaultConfiguration, secretName)`. The Mule SDK exposes it as `azure-kv:get-secret`. Validates the config and the secret name, then reads through the shared cache. Rotated values are picked up within `ttlMinutes` (D1).
+- `SharedCaches`: one `SecretCache` per vault identity (vault URL, client ID, tenant ID, TTL). Never keyed on the secret. The provider and the operation both use it, so the two paths share one cache and one client. This was needed because the runtime builds the provider's config and the operation's config as separate objects.
+- `AzureKeyVaultExtension` now declares `@Operations(AzureKeyVaultOperations.class)`.
+
+Verified:
+- 6 operation tests pass, including a test that the placeholder provider and the operation share one cache (no second vault call).
+- All six unit test classes pass: 49 tests in total.
+- `javac --release 17` compiles everything against the 4.9 classpath.
+
+Open:
+- **Named error type (D2).** The plan asks for a named Mule error type on runtime failures. The SDK's `@Throws` and `ErrorTypeProvider` exist in `mule-extensions-api` 1.9.0, but the `ErrorTypeDefinition` annotation is not in that jar. Until that is found, operation failures surface as the `VaultException` hierarchy. Not yet a named Mule error type.
+- **Sensitive output.** No annotation for marking operation output as sensitive was found in the 1.9.0 jar. The output is not logged by our code, but flow logging is not blocked by an annotation yet.
+- **Runtime behaviour.** The operation's `@Config` binding and the shared cache are unverified until WP7 runs on Mule 4.9.
+- Maven build still blocked in the annotation processor (see WP2).
+
 ## WP5 status (SPI factory and placeholder provider)
 
 Written:
