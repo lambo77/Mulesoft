@@ -30,6 +30,21 @@
     <azure.sdk.bom.version>1.3.8</azure.sdk.bom.version>
   </properties>
 
+  <!-- The parent declares these repositories over http://, which Maven's default HTTP blocker refuses.
+       Same repository IDs over https:// override the parent's definitions. -->
+  <pluginRepositories>
+    <pluginRepository>
+      <id>mulesoft-plugin-releases</id>
+      <url>https://repository.mulesoft.org/releases/</url>
+      <layout>default</layout>
+    </pluginRepository>
+    <pluginRepository>
+      <id>mulesoft-plugin-snapshots</id>
+      <url>https://repository.mulesoft.org/snapshots/</url>
+      <layout>default</layout>
+    </pluginRepository>
+  </pluginRepositories>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
