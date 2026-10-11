@@ -1,5 +1,27 @@
 # Azure Key Vault Configuration Property Provider (Mule 4)
 
+## WP2 status (extension, config, validation)
+
+Written:
+- `AzureKeyVaultExtension`: `@Extension(name = "Azure Key Vault Properties Provider")` with `@Configurations`.
+- `AzureKeyVaultConfiguration`: `@Configuration(name = "config")`, parameters `vaultUrl`, `clientId`, `clientSecret` (`@Password`), `tenantId`, `probeSecretName`, `ttlMinutes` (default 60). `toString` omits the secret.
+- `ConfigValidation`: pure rules. HTTPS `*.vault.azure.net` host, required fields, secret names 1 to 127 letters/digits/hyphens, TTL minimum 1. Error messages name the parameter, never the value.
+- `ConfigValidationTest`: 10 cases.
+
+Verified:
+- `ConfigValidationTest` passes 10/10 when run through a reflective runner (see below).
+- Main sources compile with `javac --release 17` against the resolved 4.9 classpath.
+
+Not done in WP2:
+- The start-up probe read (`probeSecretName`). It needs the vault client from WP3, so it is wired in WP3/WP5. The SDK has no `@Initialise` hook in 1.9.0, so validation runs from the provider factory at config creation.
+
+Blocked: `mvn test` / `mvn install` fail in the Mule annotation processor (`maven-processor-plugin`, `process-sources` phase). It reports `NoClassDefFoundError: org/mule/runtime/module/extension/api/loader/java/DefaultJavaExtensionModelLoader`, although that class is in `mule-module-extensions-support` 4.9.0 on the processor classpath. The parent also brings `mule-module-extensions-support` 3.7.0 (`org.mule.modules`). That version clash is the likely cause. Not yet resolved.
+
+Test run without Maven (substitute for surefire, since no JUnit launcher is cached):
+    javac --release 17 -proc:none -d <out> -cp "<classpath>" <sources>
+    java -cp "<classpath>" RunTests com.kepak.mule.keyvault.ConfigValidationTest
+
+
 Status: WP1 (skeleton) in progress. Build is BLOCKED in this environment, see below.
 Plan: `plan-FINAL.md`. Guide: `setup-and-implementation-guide.md`.
 

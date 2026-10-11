@@ -84,10 +84,38 @@
       <groupId>com.azure</groupId>
       <artifactId>azure-security-keyvault-secrets</artifactId>
     </dependency>
+
+    <!-- Runs the Java extension model processor at build time. Provided, so it is not bundled. -->
+    <dependency>
+      <groupId>org.mule.runtime</groupId>
+      <artifactId>mule-module-extensions-support</artifactId>
+      <version>${mule.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.11.4</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <!-- The extension annotation processor loads the runtime model loader from its own plugin classpath. -->
+      <plugin>
+        <groupId>org.bsc.maven</groupId>
+        <artifactId>maven-processor-plugin</artifactId>
+        <version>2.2.4</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.mule.runtime</groupId>
+            <artifactId>mule-module-extensions-support</artifactId>
+            <version>${mule.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
       <plugin>
         <groupId>org.mule.tools.maven</groupId>
         <artifactId>mule-maven-plugin</artifactId>
